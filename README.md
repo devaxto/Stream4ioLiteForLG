@@ -6,6 +6,8 @@ Fork di [LiteStream / webos-legacy-stremio](https://github.com/SinanKulen/webos-
 
 ## Installazione
 
+Scarica l’[IPK pronto dalla release GitHub](https://github.com/devaxto/Stream4ioLiteForLG/releases/tag/v1.3.0-webos2018). Nella stessa release trovi l’archivio dei sorgenti e i checksum SHA-256.
+
 Il pacchetto è `dist/org.streamlite.webos_1.3.0_all.ipk`. Contiene il core **ARMv7**: il suffisso `all` è prodotto dal packager per l’app web con servizio JS e non indica compatibilità con altre CPU.
 
 1. Sulla TV installa **Developer Mode** dallo store LG; accedi con il tuo account sviluppatore LG gratuito e abilita **Dev Mode Status** e **Key Server**.
