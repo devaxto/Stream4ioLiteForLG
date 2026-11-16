@@ -1,0 +1,8 @@
+{
+  "ipk_bytes": 307714,
+  "arm_core_bytes": 514240,
+  "arm_core_sha256": "419bc4bd977e795b86df15319edb5993d688438f1c1ec6cc9bb3b32f7541bd04",
+  "ipk_sha256": "e996ce9f5f086f9470b8d0b1eca625ad75ae789e2ecf719af84fb10b63c166de",
+  "source_commit": "2fb4abb4106d5a6b9db4ca78f82ab7703b29226e",
+  "source_zip_sha256": "ac33d1c6625cfaafd0a5c0b420353bbdcdc40cedc975cc2cb95b483ee4b268e8"
+}
