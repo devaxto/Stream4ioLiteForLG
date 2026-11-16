@@ -1,114 +1,102 @@
-# webos-legacy-stremio (LiteStream)
+# StreamLite per LG webOS 2018
 
-A lightweight client for **Stremio addons** built for **old LG webOS TVs** (webOS 3.x / 4.x, roughly 2016–2019 models) that the official Stremio app and most community ports don't support.
+Client non ufficiale compatibile con gli addon Stremio: **core Rust nativo ARMv7, routine Assembly ARM e interfaccia ES5 senza framework**. Il player è quello della TV. Nessun WebAssembly, React, motore torrent o decoder video incluso.
 
-Old LG TVs ship a very old browser engine (Chromium 38 on webOS 3.x). Modern streaming web apps either don't start at all, or crash the moment playback begins because the TV can't decode the file. LiteStream is written in plain ES5 with no framework, plays video with the TV's native `<video>` pipeline, and **only shows sources the TV can actually play**.
+Fork di [LiteStream / webos-legacy-stremio](https://github.com/SinanKulen/webos-legacy-stremio), commit di partenza `3474601`. Non è un fork del motore ufficiale Stremio. La licenza MIT e i crediti originali sono conservati.
 
-> The UI is in Turkish (metadata language `tr-TR`). Translating it is a welcome contribution.
+## Installazione
 
-## Features
+Il pacchetto è `dist/org.streamlite.webos_1.3.0_all.ipk`. Contiene il core **ARMv7**: il suffisso `all` è prodotto dal packager per l’app web con servizio JS e non indica compatibilità con altre CPU.
 
-- **Stremio account login.** Your installed addons (e.g. AIOStreams, Torrentio with a debrid service, OpenSubtitles, Cinemeta) are loaded from your account automatically.
-- **Codec-aware source list.** Hides what the TV can't play: 4K, HEVC/x265, AV1, HDR/Dolby Vision, 10-bit, DTS/TrueHD/Atmos, remux, oversized files and uncached debrid links. Compatible sources are sorted by preference. You can still reveal the hidden ones.
-- **Safe seeking.** Remote presses only move a target marker. A single real seek happens 900 ms after the last press, with the video paused during the jump. Rapid repeated seeks were a common crash cause on these TVs.
-- **In-app subtitles.** Subtitles are fetched from your subtitle addons and drawn by the app, not by the TV's decoder. Supports SRT/VTT, UTF-8 and Windows-1254. Subtitle delay is adjustable.
-- **TMDB metadata.** Movies and Series tabs with trending, popular, top rated, local-language and genre rows. Rows load infinitely and lazily, and off-screen posters are released to keep RAM usage low.
-- **Netflix-style detail page.** Backdrop, logo, overview, crew, cast row with photos and person pages, similar titles, and an episode list with progress.
-- **Ratings.** TMDB, IMDb, Rotten Tomatoes and Metacritic (via OMDb), plus an awards line.
-- **Watchlist and continue watching.** Stored locally on the TV, with resume points and next-episode detection.
-- **Audio and subtitle language preference.** Sources with Turkish audio come first, and subtitles try Turkish, then English. Both are easy to change in the code.
-- **Remote control.** Works with both the arrow keys and the Magic Remote pointer.
+1. Sulla TV installa **Developer Mode** dallo store LG; accedi con il tuo account sviluppatore LG gratuito e abilita **Dev Mode Status** e **Key Server**.
+2. Sul computer installa [webOS Dev Manager](https://github.com/webosbrew/dev-manager-desktop), aggiungi la TV usando IP e passphrase mostrati da Developer Mode.
+3. In **Apps → Install**, seleziona il file `.ipk`. Avvia **StreamLite** sulla TV.
+4. Accedi con il tuo account Stremio, sul quale devono essere già configurati gli addon. Le chiavi TMDB e OMDb sono facoltative e si inseriscono in **Impostazioni**.
+5. In **Impostazioni**, la riga in basso indica **Rust nativo ARM + Assembly ARM** se il servizio è attivo. Il tasto blu mostra il log diagnostico. Se il firmware impedisce l’avvio del servizio viene usato il fallback ES5 e lo stato lo segnala.
 
-## Download
+Developer Mode ha una scadenza: rinnovala prima che termini per conservare le app installate. Non serve il root.
 
-**Latest release: [LiteStream 1.2.0](https://github.com/SinanKulen/webos-legacy-stremio/releases/tag/v1.2.0)** — direct download: [`litestream-1.2.0.ipk`](https://github.com/SinanKulen/webos-legacy-stremio/releases/download/v1.2.0/litestream-1.2.0.ipk)
+## Cosa include
 
-The release build contains no API keys. Enter your own TMDB and OMDb keys under **Ayarlar** (Settings) after installing.
+- Login Stremio e lettura degli addon e della libreria; ricerca, film, serie ed episodi.
+- Interfaccia italiana; preferenza per audio italiano e sottotitoli italiani, poi inglesi.
+- Analisi sorgenti, normalizzazione cataloghi e parsing SRT/VTT eseguiti dal core Rust tramite un piccolo servizio Luna compatibile con Node 0.12.
+- Routine Assembly ARMv7 per convertire le lettere ASCII in minuscolo durante l’analisi. Non richiede NEON e preserva i byte UTF-8. Esiste anche il percorso Rust equivalente.
+- Lista personale e avanzamento salvati localmente; seek raggruppato dopo 900 ms; rilascio del video e dei timer all’uscita.
 
-## Requirements
+## Limiti per ridurre il consumo
 
-- An LG webOS TV with **Developer Mode** (free LG developer account).
-- A Stremio account with at least one **stream addon that returns direct HTTP links**, for example an addon configured with a debrid service. Plain torrent streams can't be played on the TV.
-- Optional: a free **TMDB API key** for metadata and a free **OMDb API key** for IMDb, RT and Metacritic ratings. Without TMDB the app falls back to Cinemeta.
+| Risorsa | Limite |
+|---|---:|
+| Righe per schermata | 6 |
+| Titoli per riga | 48 |
+| Sorgenti complessive | 120 |
+| Cache TMDB / OMDb | 24 elementi ciascuna |
+| Richiesta al core / risposta dal servizio | 2 MiB |
+| Cue sottotitoli | 10.000 |
+| Worker Rust simultanei | 1, termina dopo ogni richiesta |
+| Budget pacchetto IPK | 512 KiB |
+| Budget binario Rust statico | 600 KiB |
 
-## Install on the TV
+Le schermate di catalogo vengono rilasciate al cambio di scheda. I poster vengono caricati vicino alla porzione visibile e scaricati quando lontani. Sfondi, loghi, gallerie cast, animazioni e filtri grafici sono rimossi. Il timer dei sottotitoli esiste solo quando ci sono sottotitoli attivi.
 
-1. Install the **Developer Mode** app from the LG Content Store, sign in, and turn on *Dev Mode Status* and *Key Server*. Note the IP address and passphrase.
-2. Install [webOS Dev Manager](https://github.com/webosbrew/dev-manager-desktop) on your computer and add the TV using that IP and passphrase.
-3. Download [`litestream-1.2.0.ipk`](https://github.com/SinanKulen/webos-legacy-stremio/releases/download/v1.2.0/litestream-1.2.0.ipk) from the [latest release](https://github.com/SinanKulen/webos-legacy-stremio/releases/latest), or build it yourself (see below). In Dev Manager, open **Apps → Install** and pick the file.
-4. Open **LiteStream** on the TV and sign in with your Stremio account. If you didn't build with keys, enter your TMDB and OMDb keys under **Ayarlar** (Settings).
+**Rust e Assembly non garantiscono automaticamente meno RAM o maggiore velocità.** Il core nativo aumenta il peso rispetto alla variante solo ES5; i budget e i limiti sopra sono controllati, mentre RAM totale e fluidità vanno misurate sulla TV.
 
-**Alternative: install from the command line** with the webOS CLI:
+## Compatibilità e riproduzione
 
-```bash
-npm i -g @webos-tools/cli
-ares-setup-device                         # add the TV (IP, port 9922, passphrase)
-ares-install -d <tv-name> litestream-1.2.0.ipk
-ares-launch -d <tv-name> com.sinan.litestream
+L’interfaccia è limitata a ES5 per Chromium 38/53, usati da webOS 3.x/4.x. Il core è un eseguibile Linux ARMv7 hard-float con musl 1.2.3 collegata staticamente, così non dipende dalla versione di glibc della TV.
+
+Il numero fornito, “3.16”, non identifica da solo modello e versione della piattaforma. **Questa build non è ancora stata provata sulla TV fisica**: restano da verificare l’avvio del servizio nel firmware esatto e i codec del televisore. Un browser moderno e QEMU non sostituiscono questa prova.
+
+Il player accetta link HTTP/HTTPS diretti restituiti dagli addon. I torrent senza link diretto richiedono un servizio esterno. H.264 con AAC/AC3 a bitrate moderato è il punto di partenza consigliato. Le sorgenti pesanti vengono nascoste inizialmente; **Mostra tutte** le rende visibili. È un filtro prudente basato sulle descrizioni, non una verifica dei codec hardware. La selezione delle tracce audio dipende da `video.audioTracks`.
+
+La lista personale e i nuovi progressi sono locali e non vengono sincronizzati verso Stremio. L’app non include addon o contenuti.
+
+## Build riproducibile
+
+Su Linux servono Node/npm, Python 3.10+, Rust tramite rustup e `ar` di GNU binutils.
+
+```sh
+npm ci
+cd native
+rustup show    # installa la toolchain e il target fissati in rust-toolchain.toml
+cargo fetch --locked
+rustup component add rustfmt clippy
+cd ..
+python -m pip install -r tests/requirements.txt
+python -m playwright install chromium
+npm run verify
 ```
 
-Developer Mode expires after a while, and sideloaded apps are removed when it does. Extend the session from Dev Manager now and then. On a rooted TV with Homebrew Channel this limit doesn't apply.
+`npm run build` produce l’IPK con Rust e Assembly. `npm run build:web` produce una variante senza servizio nativo in `dist/web-only/`. Entrambe le build distribuiscono una configurazione senza chiavi personali; `app/config.js` non viene incluso.
 
-## Build
+Per compilare il core senza Assembly:
 
-```bash
-npm i -g @webos-tools/cli
-cp app/config.example.js app/config.js   # optional: put your API keys here (git-ignored)
-./scripts/build.sh                       # -> dist/com.sinan.litestream_<version>_all.ipk
+```sh
+cd native
+cargo build --locked --release --target armv7-unknown-linux-musleabihf
 ```
 
-Do **not** publish an `.ipk` built with your personal keys. Release builds should use an empty `config.js`, and users enter their own keys in Settings.
+La build del pacchetto usa esplicitamente `--features arm-asm`. `opt-level=z`, LTO, una sola unità di compilazione, simboli rimossi e `panic=abort` limitano il peso del binario.
 
-## Remote control
+## Verifiche
 
-| Where | Key | Action |
-|---|---|---|
-| Everywhere | Arrows / OK / Back | Navigate / select / go back |
-| Everywhere | Blue | Show / hide the debug log |
-| Player | OK | Play / pause |
-| Player | ◀ ▶ | −10 s / +10 s |
-| Player | ▲ ▼ (or ⏩ ⏪) | +1 min / −1 min |
-| Player | Red | Next audio track (if the TV exposes `audioTracks`) |
-| Player | Yellow | Next subtitle / off |
-| Player | CH+ / CH− | Subtitle delay ±0.5 s |
+- Test Rust di codec, italiano, cataloghi, sottotitoli e limiti; eseguiti anche con **QEMU ARM e Assembly attivo**.
+- Verifica Assembly su tutti i 256 byte e tutte le lunghezze di slice 0–256, inclusi i byte sentinella.
+- Test del servizio con il binario Rust reale: protocollo, errore di avvio, dimensioni e concorrenza.
+- Test Playwright con API simulate, sia in fallback sia con il binario Rust reale dietro un ponte Luna simulato: telecomando, Magic Remote, focus, sorgenti, audio, sottotitoli, seek, episodi, pulizia e logout. Il video è simulato: non prova la decodifica hardware.
+- Parsing ES5 di tutti i file distribuiti; controllo dell’IPK reale, del tipo ELF ARM statico, dei permessi di esecuzione, delle licenze, dei budget e della corrispondenza coi sorgenti.
 
-## Project layout
+`dist/verification.json` contiene dimensioni e SHA-256. Lo stato dettagliato delle prove è in [docs/VERIFICA.md](docs/VERIFICA.md).
 
-```
-app/
-  appinfo.json        webOS app manifest
-  index.html          all screens (markup only)
-  style.css           1920×1080 TV layout
-  app.js              the whole app (ES5)
-  config.example.js   optional build-time API keys
-scripts/
-  build.sh            package .ipk with ares-package
-  check_es5.js        fail if app.js uses syntax newer than ES5
-tests/
-  e2e_test.py         headless UI test with mocked Stremio/TMDB/OMDb APIs
+## Struttura e licenza
+
+```text
+app/                  interfaccia ES5 e player HTML5 della TV
+native/               core Rust, Assembly ARM e lockfile Cargo
+service/              piccolo ponte Luna → worker nativo, senza shell
+scripts/              build, verifica ES5, licenze e verifica IPK
+tests/                test browser e servizio; video e API simulati
 ```
 
-## Development notes
-
-- **ES5 only.** No arrow functions, `let`/`const`, template literals, `fetch`, `Object.assign`, `Array#find`/`includes`, and so on. Run `node scripts/check_es5.js` before packaging.
-- Rendering is plain DOM with a small spatial-navigation helper. There is no virtual DOM, and memory use on 1–1.5 GB TVs is the main constraint.
-- `tests/e2e_test.py` drives the UI with the keyboard in headless Chromium against mocked APIs. It checks logic and layout. Real playback still has to be tested on a TV.
-- Debugging on the TV: press **Blue** for the in-app log, or use `ares-inspect` with Developer Mode.
-
-## Known limitations
-
-- **Old hardware.** Even "compatible" sources depend on the TV model. 1080p x264 with AAC/AC3 audio is the safest choice.
-- **Audio tracks.** Switching audio tracks inside a file only works if the TV's engine exposes `video.audioTracks`, which many webOS 3.x models don't.
-- **No trailers.** YouTube blocks embeds from pages without a web origin (error 153), and webOS apps run from `file://`.
-- **Local only.** The watchlist and progress are stored on the TV and don't sync with the Stremio library.
-
-## Disclaimer
-
-This project is a **client only**. It does not host, index or provide any media, and it ships with no addons. What you can watch depends entirely on the addons you install in your own Stremio account. Use it only with content you have the right to access.
-
-Not affiliated with or endorsed by Stremio, LG Electronics, TMDB or OMDb.
-This product uses the TMDB API but is not endorsed or certified by TMDB.
-
-## License
-
-[MIT](LICENSE)
+[MIT](LICENSE), copyright originale Sinan Kulen. I componenti Rust e musl mantengono le rispettive licenze, incluse nel pacchetto. Progetto indipendente, non affiliato con Stremio o LG.

@@ -1,0 +1,5 @@
+{
+  "id": "org.streamlite.webos.service",
+  "description": "StreamLite native core",
+  "services": [{"name": "org.streamlite.webos.service"}]
+}

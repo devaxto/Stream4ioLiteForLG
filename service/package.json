@@ -1,0 +1,6 @@
+{
+  "name": "org.streamlite.webos.service",
+  "version": "1.3.0",
+  "description": "Small Luna bridge to the StreamLite Rust core",
+  "main": "service.js"
+}

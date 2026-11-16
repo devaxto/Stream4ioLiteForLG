@@ -1,13 +1,19 @@
-// Fails if app.js contains syntax newer than ES5 (webOS 3.x ships Chromium 38).
-// Usage: npm i -g acorn && NODE_PATH=$(npm root -g) node scripts/check_es5.js
+// Parse every shipped JavaScript file as ES5 for Chromium 38/53.
+// Usage: npm ci && npm run check
 var fs = require('fs');
 var path = require('path');
 var acorn = require('acorn');
-var file = path.join(__dirname, '..', 'app', 'app.js');
-try {
-  acorn.parse(fs.readFileSync(file, 'utf8'), { ecmaVersion: 5 });
-  console.log('OK: app.js is valid ES5');
-} catch (e) {
-  console.error('NOT ES5:', e.message);
-  process.exit(1);
-}
+var app = path.join(__dirname, '..', 'app');
+['app.js', 'native.js', 'config.example.js'].forEach(function (file) {
+  try {
+    acorn.parse(fs.readFileSync(path.join(app, file), 'utf8'), { ecmaVersion: 5 });
+    console.log('OK: ' + file + ' is valid ES5');
+  } catch (e) {
+    console.error(file + ' is NOT ES5:', e.message);
+    process.exit(1);
+  }
+});
+['service.js', 'runner.js'].forEach(function (file) {
+  acorn.parse(fs.readFileSync(path.join(app, '..', 'service', file), 'utf8'), { ecmaVersion: 5 });
+  console.log('OK: service/' + file + ' is valid ES5');
+});

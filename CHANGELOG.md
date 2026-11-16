@@ -1,3 +1,11 @@
+## 1.3.0 — StreamLite fork
+
+- Core Rust ARMv7 statico con routine Assembly opzionale, servizio Luna ES5 e fallback.
+- Interfaccia italiana e preferenze audio/sottotitoli italiane.
+- Cataloghi e cache limitati, rilascio dei tab e grafica ridotta.
+- Correzione focus Magic Remote, callback tardive e timer sottotitoli.
+- Build senza chiavi, licenze incluse e verifiche automatiche su ARM e browser.
+
 # Changelog
 
 ## 1.2.0

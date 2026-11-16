@@ -8,7 +8,7 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0f1
 /* Focus */
 .focusable { outline: none; }
 .focused { box-shadow: 0 0 0 6px #4da3ff; }
-.card.focused { -webkit-transform: scale(1.05); transform: scale(1.05); z-index: 2; }
+.card.focused { z-index: 2; }
 
 /* Buttons and fields */
 .btn { display: inline-block; padding: 18px 36px; border-radius: 10px; background: #2a5bd7; color: #fff; font-size: 30px; margin: 10px 12px 10px 0; }
@@ -36,16 +36,11 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0f1
 .card .card-progress { position: absolute; left: 0; bottom: 30px; height: 6px; background: #e50914; }
 .empty { padding: 40px 80px; color: #8a90a0; }
 
-/* Detail (Netflix-like) */
+/* Minimal detail */
 #screen-detail { background: #0d0f14; }
 .detail-scroll { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; }
-.hero { position: relative; height: 800px; }
-.hero-bg { position: absolute; right: 0; top: 0; width: 1420px; height: 800px; background-size: cover; background-position: center top; }
-.hero-shade { position: absolute; left: 0; top: 0; width: 1920px; height: 800px;
-  background: -webkit-linear-gradient(left, #0d0f14 22%, rgba(13,15,20,.85) 42%, rgba(13,15,20,.2) 75%, rgba(13,15,20,.35) 100%); }
-.hero-shade:after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 260px; background: -webkit-linear-gradient(top, rgba(13,15,20,0), #0d0f14); }
-.hero-content { position: relative; padding: 80px 80px 0; width: 1150px; }
-.hero-logo { display: none; max-width: 620px; max-height: 190px; margin-bottom: 18px; }
+.hero { position: relative; height: 630px; }
+.hero-content { position: relative; padding: 70px 80px 0; width: 1540px; }
 .hero-content h1 { font-size: 64px; line-height: 1.1; margin-bottom: 8px; }
 .tagline { font-style: italic; color: #c3c8d4; font-size: 26px; }
 .meta-line { margin-top: 12px; font-size: 26px; color: #d3d7e0; }
@@ -75,21 +70,10 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0f1
 .ep .ep-sub { font-size: 20px; color: #8a90a0; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ep .ep-progress { position: absolute; left: 0; bottom: 0; height: 5px; background: #e50914; }
 .ep.watched .ep-title { color: #8a90a0; }
-.inline-rows { margin-top: 10px; }
 .detail-pad { height: 200px; }
-.card.person { width: 180px; height: 330px; }
-.card.person img { width: 180px; height: 250px; }
 .card .card-sub { font-size: 18px; color: #8a90a0; padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card.has-sub:not(.person) { height: 360px; }
-.card.has-sub:not(.person) .card-progress { bottom: 54px; }
-
-/* Person */
-.person-head { display: -webkit-flex; display: flex; padding: 60px 80px 0; height: 400px; }
-.person-photo { width: 220px; height: 330px; border-radius: 12px; background: #1b1f2a; margin-right: 50px; -webkit-flex-shrink: 0; flex-shrink: 0; }
-.person-info { -webkit-flex: 1; flex: 1; overflow: hidden; }
-.person-info h1 { font-size: 54px; }
-#person-bio { margin-top: 14px; font-size: 24px; line-height: 1.4; max-height: 236px; overflow: hidden; }
-.rows.person-rows { top: 420px; }
+.card.has-sub { height: 360px; }
+.card.has-sub .card-progress { bottom: 54px; }
 
 /* Streams list */
 .list { position: absolute; top: 120px; left: 72px; right: 72px; bottom: 30px; overflow: hidden; padding: 8px; }
@@ -135,7 +119,7 @@ html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0f1
 .rows.below-search { top: 220px; }
 .card .card-rating { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,.75); color: #f5c518; font-size: 18px; padding: 2px 8px; border-radius: 6px; }
 .row-title .count { color: #8a90a0; font-size: 22px; margin-left: 12px; }
-.settings { padding: 20px 80px; width: 1100px; }
+.settings { position: absolute; top: 120px; bottom: 24px; padding: 20px 80px; width: 1400px; overflow: hidden; }
 .settings h2 { font-size: 34px; margin: 20px 0 8px; }
 .small-text { font-size: 20px; margin-top: 30px; }
-.tag.tr { background: #b3261e; }
+.tag.it { background: #b3261e; }
